@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Diligentia Group Map</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans:400,700" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            #map {
+                width: 100%;
+                height: 100%;
+            }
+
+            html, body
+            {
+                height: 100%;
+            }
+
+            .leaflet-right {
+                width: 260px;
+                min-width:30%;
+            }
+            .legend {
+                text-align: left;
+                line-height: 18px;
+                color: #555;
+            }
+            .legend i {
+                width: 18px;
+                height: 18px;
+                float: left;
+                margin-right: 8px;
+                opacity: 0.8;
+            }
+
+            .popup .cycle a.prev, .popup .cycle a.next {
+                font-weight: 600;
+                font-size:14px;
+            }
+            
+            .popup {
+                text-align:center;
+                width:350px;
+            }
+            
+            .popup .slideshow .image        { display:none; }
+            .popup .slideshow .image.active { display:block; }
+            .popup .slideshow img {
+                width:100%;
+            }
+            .popup .slideshow .caption {
+                background:#eee;
+                padding:10px;
+            }
+            .popup .cycle {
+                padding:10px 0 20px;
+            }
+            .popup .cycle a.prev { float:left; }
+            .popup .cycle a.next { float:right; }
+            
+            .leaflet-popup-content p {margin-top: 5px;
+                padding:10px;
+                font-size: 14px;
+                padding-bottom: 0px;}
+            
+            .h3 {margin-bottom: 0px;}
+            
+            .leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+                opacity: 0.85 !important;
+            }
+            
+            .leaflet-popup-content-wrapper {
+                border-radius: 0px;
+            }
+            
+            .clearfix {
+                display: block;
+            }
+            
+            .clearfix:after {
+                content: '';
+                display: block;
+                height: 0;
+                clear: both;
+                visibility: hidden;
+            }
+            
+            .popup .button.dark {
+                color: #fff;
+                border-radius: 0px;
+            }
+            
+            .view-listing.button {
+                color: #fff;
+                background: #F58E2E;
+                width: 94%;
+            }
+            
+            .view-listing.button:hover {
+                color: #fff;
+                background: #BA5A00;
+            }
+            
+            .button {
+                background-color: #3887be;
+                text-align: center;
+                color: #fff;
+                display: inline-block;
+                margin: 0px;
+                padding: 9px;
+                position: relative;
+                border: none;
+                cursor: pointer;
+                border-radius: 3px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                font-family: 'Open Sans Bold', sans-serif;
+                line-height: 20px;
+                font-size: 16px;
+                -webkit-appearance: none;
+                -webkit-font-smoothing: antialiased;
+            }
+            
+            .leaflet-popup-content {
+                margin: 0px;
+                width: 350px !important;
+            }
+            
+            h3{text-transform: uppercase;
+                margin-bottom: 0px;
+                font-size: 26px;
+                margin-top: 15px;
+            }
+            
+            .leaflet-container {
+                font: 12px/1.5 "Open Sans", Arial, Helvetica, sans-serif;
+                background: #eee;
+            }
+            
+            .tg{border-collapse:collapse;border-spacing:0; text-align: left;}
+            .tg td{font-size:14px;padding 3px 5px;overflow:hidden;word-break:normal; padding-top: 7px; padding-left: 8px;vertical-align: top;}
+            .tg th{font-size:14px;font-weight:normal;padding:3px 5px;overflow:hidden;word-break:normal;}
+            .tg .tg-34fq{font-weight:bold;text-align:right; vertical-align: top;}
+            .tg-wrap{ padding: 10px;}
+            
+            @media screen and (max-width: 767px) {.tg {width: auto !important;}.tg col {width: auto !important;}.tg-wrap {overflow-x: auto;-webkit-overflow-scrolling: touch;}}
+            
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+    </body>
+
+    <!--pull in states data from local file-->
+    <script type="text/javascript" src="us-states-2.js"></script>
+
+    <script>
+        var map = L.map('map');
+
+        /*L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+            //maxZoom: 18,
+            id: 'mapbox.light',
+            accessToken: 'pk.eyJ1Ijoiam9zaHBlcHBlciIsImEiOiJuTWdrY2k4In0.HCCXtgU04scrTB_-ON4kjA'
+        }).addTo(map);*/
+
+
+        //List of states to grey out
+        statesList = ["Alabama","Alaska","Arizona","Arkansas","California","Delaware","Iowa","Louisiana","Maryland","Minnesota","Mississippi","Missouri","Nevada","New Hampshire","New Jersey","New Mexico","North Carolina","North Dakota","Ohio","Rhode Island","South Dakota","Utah","Virginia","West Virginia","District of Columbia","Wisconsin","Wyoming","Puerto Rico"];
+        
+        statesOffline = ["Connecticut", "Idaho", "Illlinois", "New York", "Okalahoma", "Oregon", "Tennessee"]
+
+
+        //code for changing the style of the polgons showing US states
+        function style(feature) {
+            if (statesList.indexOf(feature.properties.name) > -1) {
+                return {
+                    fillColor: "#fff",
+                    weight: 0.5,
+                    opacity: 1,
+                    color: '#6E8E94',
+                    //dashArray: '3',
+                    fillOpacity: 1
+                }; 
+            }
+            if(statesOffline.indexOf(feature.properties.name) > -1) {
+                return {
+                    fillColor: "#A2DCF2",
+                    weight: 0.5,
+                    opacity: 1,
+                    color: '#485D61',
+                    //dashArray: '3',
+                    fillOpacity: 1
+                }; 
+            }else{
+                return {
+                    fillColor: "#0090A6",
+                    weight: 0.5,
+                    opacity: 1,
+                    color: '#485D61',
+                    //dashArray: '3',
+                    fillOpacity: 1
+                }; 
+            }
+        }
+
+
+        states = L.geoJson(statesData, {style: style}).addTo(map);
+
+        //define geojson
+        var geojson;
+
+
+        //code for highlighting a state when you hover over it
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 2,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 1
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera) {
+                layer.bringToFront();
+            }
+        }
+
+        //set activeState to null
+        //activeState="";
+
+        //zoom to state when clicked
+        function zoomToFeature(e) {
+            //map.fitBounds(e.target.getBounds());
+            bounds = e.target.getBounds();
+            //map.panTo(bounds.getCenter(), {animate: true, duration: 1.5, easeLinearity:.1});
+            //window.setTimeout(map.setZoom(5), 1700);
+            //map.setZoom(7);
+            map.setView(bounds.getCenter(), 5);
+
+
+            //restore styles for all layers
+            geojson.eachLayer(function (layer) {
+                layer.setStyle(style(layer.feature)); 
+            });
+
+
+            //store LeafletID of active state
+            window.activeState = e.target.feature.properties.name;
+            window.layerID = e.target.feature.id;
+
+            e.target.setStyle({
+                color: '#002F38',
+                fillColor: '#F59D51'
+            });
+        }
+
+
+        //reset all styles
+        function resetHighlight(e) {
+            if(e.target.feature.properties.name!=window.activeState){
+                geojson.resetStyle(e.target);
+            }
+        }
+
+        //for each action, run one of the above functions.
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+        geojson = L.geoJson(statesData, {
+            style: style,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+
+        //function to run on clicking
+        function onMapClick(e) {
+            //highlight state when clicked
+            highlightLayer(e);
+        }
+
+        //center map
+        map.fitBounds(geojson.getBounds());
+
+
+        //variables for custom icon
+        var customIcon = L.icon({
+            iconUrl: 'logo.png',
+            //shadowUrl: 'leaf-shadow.png',
+
+            iconSize:     [25, 25], // size of the icon
+            //shadowSize:   [50, 64], // size of the shadow
+            //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+            //shadowAnchor: [4, 62],  // the same for the shadow
+            //popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+        });
+
+        //add marker for diligentia
+        //var marker = L.marker([41.255209,-73.683847]/*, {icon: customIcon}*/).addTo(map).bindPopup("<div style='width250px;' class='popup'><h3>Diligentia Group</h3><p>282 Katonah Avenue, #180<br>Katonah, New York 10536<br>+1 914 500 8790<br>info@DiligentiaGroup.com</p></div>").on('click', function(e) {
+            //console.log(e);
+        //    map.setView([41.255209,-73.683847],7);
+        //});;
+
+
+        //popups
+        // Create custom popup content
+        geojson.eachLayer(function (layer) {
+            //console.log(layer);
+            var popupContent =  '<div id="' + 
+                layer.feature.properties.name + '" class="popup">'+
+                '<h3>' + layer.feature.properties.name + '</h3>' +
+                layer.feature.properties.description +
+                layer.feature.properties.link +
+                '</div>';
+            //console.log(popupContent);
+            layer.bindPopup(popupContent);
+        });
+
+        // http://leafletjs.com/reference.html#popup
+        //marker.bindPopup(popupContent,{
+        //    closeButton: false,
+        //    minWidth: 320
+        //});
+
+    </script>
+</html>
