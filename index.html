@@ -239,7 +239,7 @@
             //map.panTo(bounds.getCenter(), {animate: true, duration: 1.5, easeLinearity:.1});
             //window.setTimeout(map.setZoom(5), 1700);
             //map.setZoom(7);
-            map.setView(bounds.getCenter(), 5);
+            map.setView([bounds.getCenter().lat+2, bounds.getCenter().lng], 5);
 
 
             //restore styles for all layers
