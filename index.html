@@ -180,26 +180,26 @@
                     fillColor: "#fff",
                     weight: 0.5,
                     opacity: 1,
-                    color: '#6E8E94',
+                    color: '#C06100',
                     //dashArray: '3',
                     fillOpacity: 1
                 }; 
             }
             if(statesOffline.indexOf(feature.properties.name) > -1) {
                 return {
-                    fillColor: "#A2DCF2",
+                    fillColor: "#FFB05F",
                     weight: 0.5,
                     opacity: 1,
-                    color: '#485D61',
+                    color: '#974C00',
                     //dashArray: '3',
                     fillOpacity: 1
                 }; 
             }else{
                 return {
-                    fillColor: "#0090A6",
+                    fillColor: "#C06100",
                     weight: 0.5,
                     opacity: 1,
-                    color: '#485D61',
+                    color: '#974C00',
                     //dashArray: '3',
                     fillOpacity: 1
                 }; 
@@ -219,7 +219,6 @@
 
             layer.setStyle({
                 weight: 2,
-                color: '#666',
                 dashArray: '',
                 fillOpacity: 1
             });
@@ -253,8 +252,8 @@
             window.layerID = e.target.feature.id;
 
             e.target.setStyle({
-                color: '#002F38',
-                fillColor: '#F59D51'
+                fillColor:'#277F98',
+                color:'#025870'
             });
         }
 
